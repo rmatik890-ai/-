@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>𝗦'𝗦 𝗟𝗘𝗚𝗘𝗡𝗗 𝗧𝗘𝗔𝗠</title>
+    <style>
+        /* বেসিক রিসেট */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            overflow: hidden; /* স্ক্রল বন্ধ */
+            background-color: #000;
+        }
+
+        /* ১. ব্যাকগ্রাউন্ড সাইট (iframe) */
+        #bg-site {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 1; /* সবার নিচে থাকবে */
+        }
+
+        /* ২. ভাসমান পপ-আপ (Draggable Modal) - নরমাল সাইজ */
+        #floating-panel {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, 0); 
+            width: 240px; /* লগিন এর আগে এই সাইজ থাকবে */
+            background: rgba(20, 20, 30, 0.95);
+            border-radius: 15px;
+            border: 2px solid #d600ff; 
+            box-shadow: 0 0 10px #d600ff, 0 0 20px #00ffff;
+            z-index: 9999;
+            padding: 15px;
+            text-align: center;
+            color: white;
+            cursor: move;
+            user-select: none;
+            touch-action: none; 
+            transition: all 0.5s ease; /* সাইজ ছোট হওয়ার এনিমেশন */
+        }
+
+        /* --- ৩. লগিন হওয়ার পর "Mini Mode" বা আরও ছোট সাইজ --- */
+        #floating-panel.compact-mode {
+            width: 170px; /* লগিন হলে অটোমেটিক এই সাইজ হবে */
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        /* কম্প্যাক্ট মোডে ভিতরের এলিমেন্ট গুলো ছোট করার কোড */
+        .compact-mode .header-title { font-size: 10px; margin-bottom: 5px; }
+        .compact-mode .profile-img { width: 35px; height: 35px; margin-bottom: 2px; }
+        .compact-mode .user-name { font-size: 10px; display: none; } /* নাম হাইড করে দিলাম জায়গা বাঁচাতে */
+        .compact-mode .timer-text { font-size: 8px; }
+        .compact-mode .timer-box { font-size: 22px; margin: 2px 0; }
+        .compact-mode .result-box { font-size: 24px; min-height: 35px; margin: 5px 0; }
+        .compact-mode .telegram-btn { padding: 4px 10px; font-size: 10px; margin-top: 2px; }
+
+
+        /* হেডার টাইটেল */
+        .header-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #00ffff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 5px #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- লগিন সেকশন --- */
+        #login-section {
+            display: block;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #00ffff;
+            background: #111;
+            color: white;
+            outline: none;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(90deg, #00ffff, #00ffaa);
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 8px #00ffff;
+            font-size: 12px;
+        }
+
+        /* --- মড ড্যাশবোর্ড (লগিনের পর) --- */
+        #mod-dashboard {
+            display: none; 
+        }
+
+        /* প্রোফাইল এরিয়া */
+        .profile-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .profile-img {
+            width: 45px; 
+            height: 45px;
+            border-radius: 50%;
+            background-color: #333;
+            border: 2px solid #fff;
+            margin-bottom: 5px;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* টাইমার ডিজাইন */
+        .timer-box {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff0055;
+            text-shadow: 0 0 10px #ff0055;
+            margin: 5px 0;
+            background: rgba(0,0,0,0.5);
+            padding: 2px;
+            border-radius: 8px;
+        }
+
+        /* রেজাল্ট (BIG/SMALL) */
+        .result-box {
+            font-size: 30px; 
+            font-weight: 900;
+            color: #00ff00;
+            text-shadow: 0 0 15px #00ff00;
+            margin: 10px 0;
+            min-height: 45px;
+            animation: none;
+        }
+
+        /* রেজাল্ট এনিমেশন */
+        @keyframes popUp {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .animate-pop {
+            animation: popUp 0.5s ease-out;
+        }
+
+        /* টেলিগ্রাম বাটন */
+        .telegram-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #0088cc;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-top: 5px;
+            box-shadow: 0 0 8px #0088cc;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ১. ব্যাকগ্রাউন্ড সাইট -->
+    <iframe id="bg-site" src="https://amarclub.net/#/register?invitationCode=386781246504"></iframe>
+
+
+    <!-- ২. ভাসমান পপ-আপ প্যানেল -->
+    <div id="floating-panel">
+        <div class="header-title">𝗦'𝗦 𝗟𝗘𝗚𝗘𝗡𝗗 𝗧𝗘𝗔𝗠</div>
+
+        <!-- লগিন ফর্ম -->
+        <div id="login-section">
+            <input type="password" id="passwordInput" placeholder="Password">
+            <button class="btn-login" onclick="checkLogin()">Login</button>
+            <p id="error-msg" style="color:red; font-size:10px; margin-top:5px; display:none;">Wrong Password!</p>
+        </div>
+
+        <!-- ড্যাশবোর্ড (লগিনের পর আসবে) -->
+        <div id="mod-dashboard">
+            <!-- প্রোফাইল -->
+            <div class="profile-area">
+                <img src="https://ik.imagekit.io/ljcih9oti/IMG_20251130_173135_526.jpg" alt="Profile" class="profile-img">
+                <div class="user-name">𝗦'𝗦 𝗟𝗘𝗚𝗘𝗡𝗗 𝗧𝗘𝗔𝗠</div>
+            </div>
+
+            <!-- টাইমার -->
+            <div class="timer-text" style="font-size: 10px; color: #aaa;">TIME REMAINING</div>
+            <div id="countdown" class="timer-box">30</div>
+
+            <!-- রেজাল্ট -->
+            <div id="prediction-result" class="result-box">WAIT...</div>
+
+            <!-- টেলিগ্রাম বাটন -->
+            <a href="https://t.me/devolopar_rabbi_r" target="_blank" class="telegram-btn">Join</a>
+        </div>
+    </div>
+
+    <script>
+        // --- ১. ড্র্যাগ করার লজিক ---
+        const floatingPanel = document.getElementById("floating-panel");
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        // Mouse (PC)
+        floatingPanel.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            offsetX = e.clientX - floatingPanel.getBoundingClientRect().left;
+            offsetY = e.clientY - floatingPanel.getBoundingClientRect().top;
+            floatingPanel.style.cursor = "grabbing";
+        });
+
+        document.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+                let x = e.clientX - offsetX;
+                let y = e.clientY - offsetY;
+                floatingPanel.style.left = `${x}px`;
+                floatingPanel.style.top = `${y}px`;
+                floatingPanel.style.transform = "none";
+            }
+        });
+
+        document.addEventListener("mouseup", () => {
+            isDragging = false;
+            floatingPanel.style.cursor = "move";
+        });
+
+        // Touch (Mobile)
+        floatingPanel.addEventListener("touchstart", (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            offsetX = touch.clientX - floatingPanel.getBoundingClientRect().left;
+            offsetY = touch.clientY - floatingPanel.getBoundingClientRect().top;
+        }, { passive: false });
+
+        document.addEventListener("touchmove", (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                let x = touch.clientX - offsetX;
+                let y = touch.clientY - offsetY;
+                
+                if(x < 0) x = 0;
+                if(y < 0) y = 0;
+                if(x + floatingPanel.offsetWidth > window.innerWidth) x = window.innerWidth - floatingPanel.offsetWidth;
+                if(y + floatingPanel.offsetHeight > window.innerHeight) y = window.innerHeight - floatingPanel.offsetHeight;
+
+                floatingPanel.style.left = `${x}px`;
+                floatingPanel.style.top = `${y}px`;
+                floatingPanel.style.transform = "none";
+                e.preventDefault(); 
+            }
+        }, { passive: false });
+
+        document.addEventListener("touchend", () => {
+            isDragging = false;
+        });
+
+
+        // --- ২. লগিন এবং টাইমার লজিক ---
+        
+        // পাসওয়ার্ড কনফিগারেশন: rabbi
+        const CORRECT_PASSWORD = "rabbi"; 
+
+        function checkLogin() {
+            const inputPass = document.getElementById("passwordInput").value;
+            const errorMsg = document.getElementById("error-msg");
+
+            if (inputPass === CORRECT_PASSWORD) {
+                // লগিন সফল হলে যা হবে:
+                document.getElementById("login-section").style.display = "none";
+                document.getElementById("mod-dashboard").style.display = "block";
+                
+                // *** এই লাইনটি পপ-আপকে আরও ছোট (Mini) করে দিবে ***
+                document.getElementById("floating-panel").classList.add("compact-mode");
+                
+                document.querySelector(".header-title").innerText = "SS ACTIVE";
+                startTimer(); // টাইমার শুরু
+            } else {
+                // ভুল পাসওয়ার্ড
+                errorMsg.style.display = "block";
+                document.getElementById("passwordInput").style.border = "1px solid red";
+            }
+        }
+
+        // --- ৩. ৩০ সেকেন্ড টাইমার এবং প্রেডিকশন লজিক ---
+        function startTimer() {
+            let timeLeft = 30;
+            const timerElement = document.getElementById("countdown");
+            const resultElement = document.getElementById("prediction-result");
+
+            const timerInterval = setInterval(() => {
+                // টাইমার আপডেট
+                if(timeLeft < 10) {
+                     timerElement.innerText = "0" + timeLeft;
+                } else {
+                     timerElement.innerText = timeLeft;
+                }
+
+                // কালার ইফেক্ট
+                if (timeLeft <= 10) {
+                    timerElement.style.color = "red";
+                } else {
+                    timerElement.style.color = "#00ffff";
+                }
+
+                // লজিক: ১ সেকেন্ডে রেজাল্ট আসবে
+                if (timeLeft === 1) {
+                    generateResult(resultElement);
+                }
+
+                // টাইমার লুপ
+                if (timeLeft === 0) {
+                    timeLeft = 30; 
+                    setTimeout(() => {
+                        resultElement.innerText = "WAIT...";
+                        resultElement.style.color = "yellow";
+                        resultElement.classList.remove("animate-pop");
+                    }, 2000);
+                } else {
+                    timeLeft--;
+                }
+
+            }, 1000);
+        }
+
+        function generateResult(element) {
+            // র‍্যান্ডম BIG অথবা SMALL
+            const outcomes = ["BIG", "SMALL"];
+            const randomOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
+
+            element.innerText = randomOutcome;
+            
+            // কালার সেট করা
+            if(randomOutcome === "BIG") {
+                element.style.color = "#00ff00"; // Green
+            } else {
+                element.style.color = "#ffaa00"; // Orange
+            }
+
+            // পপ-আপ এনিমেশন
+            element.classList.remove("animate-pop"); 
+            void element.offsetWidth; 
+            element.classList.add("animate-pop");
+        }
+
+    </script>
+</body>
+</html>
