@@ -14,7 +14,7 @@
         }
 
         body {
-            overflow: hidden; /* স্ক্রল বন্ধ */
+            overflow: hidden;
             background-color: #000;
         }
 
@@ -26,17 +26,17 @@
             width: 100%;
             height: 100%;
             border: none;
-            z-index: 1; /* সবার নিচে থাকবে */
+            z-index: 1;
         }
 
-        /* ২. ভাসমান পপ-আপ (Draggable Modal) - নরমাল সাইজ */
+        /* ২. ভাসমান পপ-আপ (Draggable Modal) */
         #floating-panel {
             position: absolute;
             top: 20%;
             left: 50%;
             transform: translate(-50%, 0); 
-            width: 240px; /* লগিন এর আগে এই সাইজ থাকবে */
-            background: rgba(20, 20, 30, 0.95);
+            width: 260px;
+            background: rgba(20, 20, 30, 0.98);
             border-radius: 15px;
             border: 2px solid #d600ff; 
             box-shadow: 0 0 10px #d600ff, 0 0 20px #00ffff;
@@ -47,25 +47,21 @@
             cursor: move;
             user-select: none;
             touch-action: none; 
-            transition: all 0.5s ease; /* সাইজ ছোট হওয়ার এনিমেশন */
+            transition: width 0.5s ease;
         }
 
-        /* --- ৩. লগিন হওয়ার পর "Mini Mode" বা আরও ছোট সাইজ --- */
+        /* --- লগিন হওয়ার পর "Mini Mode" --- */
         #floating-panel.compact-mode {
-            width: 170px; /* লগিন হলে অটোমেটিক এই সাইজ হবে */
+            width: 220px; /* টেবিল দেখার জন্য একটু চওড়া রাখা হলো */
             padding: 10px;
-            border-radius: 12px;
+            max-height: 80vh; /* স্ক্রিনের বাইরে না যাওয়ার জন্য */
+            overflow-y: auto; /* কন্টেন্ট বেশি হলে স্ক্রল হবে */
         }
-
-        /* কম্প্যাক্ট মোডে ভিতরের এলিমেন্ট গুলো ছোট করার কোড */
-        .compact-mode .header-title { font-size: 10px; margin-bottom: 5px; }
-        .compact-mode .profile-img { width: 35px; height: 35px; margin-bottom: 2px; }
-        .compact-mode .user-name { font-size: 10px; display: none; } /* নাম হাইড করে দিলাম জায়গা বাঁচাতে */
-        .compact-mode .timer-text { font-size: 8px; }
-        .compact-mode .timer-box { font-size: 22px; margin: 2px 0; }
-        .compact-mode .result-box { font-size: 24px; min-height: 35px; margin: 5px 0; }
-        .compact-mode .telegram-btn { padding: 4px 10px; font-size: 10px; margin-top: 2px; }
-
+        
+        /* স্ক্রলবার হাইড করা (সুন্দর দেখার জন্য) */
+        #floating-panel.compact-mode::-webkit-scrollbar {
+            width: 0px;
+        }
 
         /* হেডার টাইটেল */
         .header-title {
@@ -119,69 +115,94 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
         }
         
         .profile-img {
-            width: 45px; 
-            height: 45px;
+            width: 40px; 
+            height: 40px;
             border-radius: 50%;
             background-color: #333;
             border: 2px solid #fff;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             object-fit: cover;
         }
 
         .user-name {
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
             color: #fff;
+            margin-bottom: 2px;
         }
 
-        /* টাইমার ডিজাইন */
-        .timer-box {
-            font-size: 28px;
-            font-weight: bold;
-            color: #ff0055;
-            text-shadow: 0 0 10px #ff0055;
-            margin: 5px 0;
-            background: rgba(0,0,0,0.5);
-            padding: 2px;
-            border-radius: 8px;
+        /* পিরিয়ড এবং টাইম */
+        .info-box {
+            background: #111;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 8px;
+            border: 1px solid #333;
         }
+        .period-text { font-size: 11px; color: #ff0055; font-weight: bold; }
+        .time-text { font-size: 10px; color: #aaa; }
 
-        /* রেজাল্ট (BIG/SMALL) */
+        /* প্রেডিকশন রেজাল্ট */
+        .prediction-container {
+            margin: 5px 0 10px 0;
+        }
         .result-box {
-            font-size: 30px; 
+            font-size: 26px; 
             font-weight: 900;
             color: #00ff00;
-            text-shadow: 0 0 15px #00ff00;
-            margin: 10px 0;
-            min-height: 45px;
-            animation: none;
+            text-shadow: 0 0 10px #00ff00;
+            margin-top: 2px;
+            animation: popUp 0.5s ease-out;
+        }
+        .confidence-text {
+            font-size: 10px;
+            color: #ccc;
         }
 
-        /* রেজাল্ট এনিমেশন */
         @keyframes popUp {
             0% { transform: scale(0.5); opacity: 0; }
             50% { transform: scale(1.2); }
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .animate-pop {
-            animation: popUp 0.5s ease-out;
+        /* হিস্ট্রি টেবিল */
+        .history-container {
+            max-height: 120px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            font-size: 9px;
         }
-
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #00ffff; color: #000; padding: 2px; position: sticky; top: 0; }
+        td { border-bottom: 1px solid #333; padding: 3px; color: #fff; }
+        
+        /* কালার ডট */
+        .dot {
+            height: 8px; width: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .green { background-color: #00e600; color: #00e600; }
+        .red { background-color: #ff3333; color: #ff3333; }
+        .violet { background-color: #bf00ff; color: #bf00ff; }
+        
         /* টেলিগ্রাম বাটন */
         .telegram-btn {
             display: inline-block;
             text-decoration: none;
             background: #0088cc;
             color: white;
-            padding: 6px 15px;
+            padding: 5px 15px;
             border-radius: 15px;
-            font-size: 12px;
-            margin-top: 5px;
+            font-size: 11px;
             box-shadow: 0 0 8px #0088cc;
         }
 
@@ -208,29 +229,51 @@
         <div id="mod-dashboard">
             <!-- প্রোফাইল -->
             <div class="profile-area">
-                <img src="https://ik.imagekit.io/ljcih9oti/IMG_20251130_173135_526.jpg" alt="Profile" class="profile-img">
+                <img src="https://ik.imagekit.io/ljcih9oti/IMG        _20251130_173135_526.jpg" alt="Profile" class="profile-img">
                 <div class="user-name">𝗦'𝗦 𝗟𝗘𝗚𝗘𝗡𝗗 𝗧𝗘𝗔𝗠</div>
             </div>
 
-            <!-- টাইমার -->
-            <div class="timer-text" style="font-size: 10px; color: #aaa;">TIME REMAINING</div>
-            <div id="countdown" class="timer-box">30</div>
+            <!-- লাইভ ইনফো -->
+            <div class="info-box">
+                <div id="currentPeriod" class="period-text">Period: Loading...</div>
+                <div id="liveTime" class="time-text">Time: --:--:--</div>
+            </div>
 
-            <!-- রেজাল্ট -->
-            <div id="prediction-result" class="result-box">WAIT...</div>
+            <!-- প্রেডিকশন রেজাল্ট -->
+            <div class="prediction-container">
+                <div class="confidence-text">PREDICTION</div>
+                <div id="predictionBox" class="result-box">WAIT...</div>
+                <div id="confidenceBox" class="confidence-text">Confidence: --%</div>
+            </div>
+
+            <!-- হিস্ট্রি টেবিল -->
+            <div class="history-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th>Num</th>
+                            <th>B/S</th>
+                            <th>Col</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultBody">
+                        <tr><td colspan="4">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- টেলিগ্রাম বাটন -->
-            <a href="https://t.me/ss_legend_team" target="_blank" class="telegram-btn">Join</a>
+            <a href="https://t.me/ss_legend_team" target="_blank" class="telegram-btn">Join TG</a>
         </div>
     </div>
 
     <script>
-        // --- ১. ড্র্যাগ করার লজিক ---
+        // --- ১. ড্র্যাগ করার লজিক (Source A থেকে) ---
         const floatingPanel = document.getElementById("floating-panel");
         let isDragging = false;
         let offsetX, offsetY;
 
-        // Mouse (PC)
         floatingPanel.addEventListener("mousedown", (e) => {
             isDragging = true;
             offsetX = e.clientX - floatingPanel.getBoundingClientRect().left;
@@ -253,7 +296,7 @@
             floatingPanel.style.cursor = "move";
         });
 
-        // Touch (Mobile)
+        // Touch Support
         floatingPanel.addEventListener("touchstart", (e) => {
             isDragging = true;
             const touch = e.touches[0];
@@ -266,109 +309,187 @@
                 const touch = e.touches[0];
                 let x = touch.clientX - offsetX;
                 let y = touch.clientY - offsetY;
-                
                 if(x < 0) x = 0;
                 if(y < 0) y = 0;
                 if(x + floatingPanel.offsetWidth > window.innerWidth) x = window.innerWidth - floatingPanel.offsetWidth;
                 if(y + floatingPanel.offsetHeight > window.innerHeight) y = window.innerHeight - floatingPanel.offsetHeight;
-
                 floatingPanel.style.left = `${x}px`;
                 floatingPanel.style.top = `${y}px`;
                 floatingPanel.style.transform = "none";
                 e.preventDefault(); 
             }
         }, { passive: false });
-
-        document.addEventListener("touchend", () => {
-            isDragging = false;
-        });
+        document.addEventListener("touchend", () => { isDragging = false; });
 
 
-        // --- ২. লগিন এবং টাইমার লজিক ---
+        // --- ২. লগিন এবং API লজিক ---
         
-        // পাসওয়ার্ড কনফিগারেশন: rabbi
         const CORRECT_PASSWORD = "WIFE-HABIBA"; 
+        let intervalId; // টাইমার কন্ট্রোল করার জন্য
 
         function checkLogin() {
             const inputPass = document.getElementById("passwordInput").value;
             const errorMsg = document.getElementById("error-msg");
 
             if (inputPass === CORRECT_PASSWORD) {
-                // লগিন সফল হলে যা হবে:
+                // UI পরিবর্তন
                 document.getElementById("login-section").style.display = "none";
                 document.getElementById("mod-dashboard").style.display = "block";
-                
-                // *** এই লাইনটি পপ-আপকে আরও ছোট (Mini) করে দিবে ***
                 document.getElementById("floating-panel").classList.add("compact-mode");
                 
-                document.querySelector(".header-title").innerText = "𝗦'𝗦 𝗟𝗘𝗚𝗘𝗡𝗗 𝗧𝗘𝗔𝗠";
-                startTimer(); // টাইমার শুরু
+                // API কল এবং টাইমার শুরু
+                loadAndPredict();
+                updateLiveTime();
+                intervalId = setInterval(() => {
+                    loadAndPredict();
+                    updateLiveTime();
+                }, 5000); 
+
             } else {
-                // ভুল পাসওয়ার্ড
                 errorMsg.style.display = "block";
                 document.getElementById("passwordInput").style.border = "1px solid red";
             }
         }
 
-        // --- ৩. ৩০ সেকেন্ড টাইমার এবং প্রেডিকশন লজিক ---
-        function startTimer() {
-            let timeLeft = 30;
-            const timerElement = document.getElementById("countdown");
-            const resultElement = document.getElementById("prediction-result");
+        // --- ৩. API এবং প্রেডিকশন লজিক (Source B থেকে ইন্টিগ্রেটেড) ---
 
-            const timerInterval = setInterval(() => {
-                // টাইমার আপডেট
-                if(timeLeft < 10) {
-                     timerElement.innerText = "0" + timeLeft;
-                } else {
-                     timerElement.innerText = timeLeft;
-                }
+        const CURRENT_API = 'https://api.bdg88zf.com/api/webapi/GetGameIssue';
+        const HISTORY_API = 'https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json';
+        const REQUEST_DATA = {
+            typeId: 1, language: 0, random: "e7fe6c090da2495ab8290dac551ef1ed",
+            signature: "1F390E2B2D8A55D693E57FD905AE73A7", timestamp: 1723726679
+        };
 
-                // কালার ইফেক্ট
-                if (timeLeft <= 10) {
-                    timerElement.style.color = "red";
-                } else {
-                    timerElement.style.color = "#00ffff";
-                }
-
-                // লজিক: ১ সেকেন্ডে রেজাল্ট আসবে
-                if (timeLeft === 1) {
-                    generateResult(resultElement);
-                }
-
-                // টাইমার লুপ
-                if (timeLeft === 0) {
-                    timeLeft = 30; 
-                    setTimeout(() => {
-                        resultElement.innerText = "WAIT...";
-                        resultElement.style.color = "yellow";
-                        resultElement.classList.remove("animate-pop");
-                    }, 2000);
-                } else {
-                    timeLeft--;
-                }
-
-            }, 1000);
+        function getBigSmall(num) { return num >= 5 ? 'Big' : 'Small'; }
+        
+        function getColorType(num) {
+            if ([1,3,7,9].includes(num)) return 'Green';
+            if ([2,4,6,8].includes(num)) return 'Red';
+            return 'Violet';
         }
 
-        function generateResult(element) {
-            // র‍্যান্ডম BIG অথবা SMALL
-            const outcomes = ["BIG", "SMALL"];
-            const randomOutcome = outcomes[Math.floor(Math.random() * outcomes.length)];
-
-            element.innerText = randomOutcome;
+        function getPrediction(history) {
+            const sizeList = history.map(h => getBigSmall(parseInt(h.number)));
+            const bigCount = sizeList.filter(s => s === 'Big').length;
+            const smallCount = sizeList.length - bigCount;
+            let streakSize = sizeList[0];
+            let streakCount = 1;
             
-            // কালার সেট করা
-            if(randomOutcome === "BIG") {
-                element.style.color = "#00ff00"; // Green
-            } else {
-                element.style.color = "#ffaa00"; // Orange
+            for (let i = 1; i < sizeList.length; i++) {
+                if (sizeList[i] === streakSize) streakCount++;
+                else break;
             }
 
-            // পপ-আপ এনিমেশন
-            element.classList.remove("animate-pop"); 
-            void element.offsetWidth; 
-            element.classList.add("animate-pop");
+            let predicted = '';
+            // Pattern Matching
+            const recentPattern = sizeList.slice(0, 3).join(',');
+            for (let i = 3; i < sizeList.length - 3; i++) {
+                const pattern = sizeList.slice(i, i + 3).join(',');
+                if (pattern === recentPattern) {
+                    predicted = sizeList[i + 3];
+                    break;
+                }
+            }
+
+            if (!predicted) {
+                if (bigCount > smallCount + 2) predicted = 'Small';
+                else if (smallCount > bigCount + 2) predicted = 'Big';
+                else predicted = sizeList[0] === 'Big' ? 'Small' : 'Big';
+            }
+
+            if (streakCount >= 3) {
+                predicted = streakSize === 'Big' ? 'Small' : 'Big';
+            }
+            return predicted;
+        }
+
+        function generateConfidence() {
+            return Math.floor(Math.random() * 20) + 80; // 80-99%
+        }
+
+        async function loadCurrentPeriod() {
+            try {
+                const res = await fetch(CURRENT_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(REQUEST_DATA)
+                });
+                const data = await res.json();
+                return data.data?.issueNumber || "Unavailable";
+            } catch {
+                return "Unavailable";
+            }
+        }
+
+        async function loadAndPredict() {
+            // ১. কারেন্ট পিরিয়ড লোড
+            const currentPeriod = await loadCurrentPeriod();
+            document.getElementById('currentPeriod').innerText = "Period: " + currentPeriod;
+
+            // ২. হিস্ট্রি লোড
+            try {
+                const res = await fetch(HISTORY_API + '?ts=' + Date.now());
+                const data = await res.json();
+                const list = data.data.list.slice(0, 20); // টেবিলের জন্য ২০টা ডেটা
+
+                // ৩. টেবিল আপডেট
+                const tbody = document.getElementById('resultBody');
+                tbody.innerHTML = '';
+                list.forEach(item => {
+                    const num = parseInt(item.number);
+                    const size = getBigSmall(num);
+                    const colorClass = getColorType(num).toLowerCase();
+                    
+                    // পিরিয়ড নম্বরের শেষ ৪ ডিজিট দেখানো হবে জায়গা বাঁচাতে
+                    const shortPeriod = item.issueNumber.slice(-4); 
+
+                    tbody.innerHTML += `
+                    <tr>
+                        <td>${shortPeriod}</td>
+                        <td style="color:${colorClass === 'green' ? '#0f0' : colorClass === 'red' ? '#f00' : '#bf00ff'}">${num}</td>
+                        <td>${size}</td>
+                        <td><span class="dot ${colorClass}"></span></td>
+                    </tr>`;
+                });
+
+                // ৪. প্রেডিকশন জেনারেট
+                const lastPeriod = localStorage.getItem("lastShownPeriod");
+                
+                // নতুন পিরিয়ড আসলে প্রেডিকশন আপডেট হবে
+                if (currentPeriod !== lastPeriod) {
+                    const prediction = getPrediction(list);
+                    const confidence = generateConfidence();
+                    
+                    const pBox = document.getElementById("predictionBox");
+                    pBox.innerText = prediction.toUpperCase();
+                    
+                    // কালার চেঞ্জ
+                    if(prediction === 'Big') {
+                        pBox.style.color = "#00ff00"; // Green for Big (Example)
+                    } else {
+                        pBox.style.color = "#ffaa00"; // Orange for Small
+                    }
+                    
+                    // এনিমেশন রিসেট
+                    pBox.classList.remove("animate-pop");
+                    void pBox.offsetWidth;
+                    pBox.classList.add("animate-pop");
+
+                    document.getElementById("confidenceBox").innerText = `Confidence: ${confidence}%`;
+
+                    localStorage.setItem("lastPrediction", prediction);
+                    localStorage.setItem("lastShownPeriod", currentPeriod);
+                }
+
+            } catch (err) {
+                console.error("API Error", err);
+            }
+        }
+
+        function updateLiveTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-GB', { hour12: false });
+            document.getElementById('liveTime').innerText = "Time: " + time;
         }
 
     </script>
